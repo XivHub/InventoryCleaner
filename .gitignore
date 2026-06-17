@@ -1,0 +1,9 @@
+.vs/
+.idea/
+obj/
+bin/
+*.user
+*.suo
+
+# Local publish script (deploy paths are environment-specific)
+publish.sh

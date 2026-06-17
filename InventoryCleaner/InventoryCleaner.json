@@ -1,0 +1,12 @@
+{
+  "Author": "Zhyra",
+  "Name": "InventoryCleaner",
+  "Punchline": "Tidy your inventory automatically.",
+  "Description": "Cleans up your inventory.",
+  "InternalName": "InventoryCleaner",
+  "ApplicableVersion": "any",
+  "Tags": [
+    "inventory",
+    "automation"
+  ]
+}
