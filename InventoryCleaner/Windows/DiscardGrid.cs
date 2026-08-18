@@ -84,7 +84,7 @@ internal static class DiscardGrid
         var rarity = Sheets.RarityColorU32(item.ItemId);
 
         dl.AddRectFilled(min, max, ImGui.GetColorU32(Theme.Panel), SlotRounding, ImDrawFlags.None);
-        dl.AddRectFilled(min, max, WithAlpha(rarity, 0.20f), SlotRounding, ImDrawFlags.None);
+        dl.AddRectFilled(min, max, WithAlpha(rarity, 0.07f), SlotRounding, ImDrawFlags.None);
 
         var iconId = Sheets.IconId(item.ItemId);
         if (iconId != 0)
@@ -127,8 +127,7 @@ internal static class DiscardGrid
         }
         else
         {
-            dl.AddRect(min, max, rarity, SlotRounding, ImDrawFlags.None, 1.5f);
-            dl.AddRect(min, max, ImGui.GetColorU32(Theme.Rule), SlotRounding, ImDrawFlags.None, 0.5f);
+            dl.AddRect(min, max, rarity, SlotRounding, ImDrawFlags.None, 2f);
         }
 
         if (hovered)

@@ -98,6 +98,32 @@ internal static class Theme
         return ImGui.Button(label, new Vector2(width, 0f));
     }
 
+    /// <summary>A square, glyph-only button with a hover tooltip, for secondary actions.</summary>
+    internal static bool IconButton(FontAwesomeIcon icon, string tooltip)
+    {
+        using var colors = ImRaii.PushColor(ImGuiCol.Button, new Vector4(0f, 0f, 0f, 0f))
+            .Push(ImGuiCol.ButtonHovered, Brass with { W = 0.25f })
+            .Push(ImGuiCol.ButtonActive, Brass with { W = 0.40f });
+
+        var size = ImGui.GetFrameHeight();
+        var pressed = ImGui.Button($"##{tooltip}", new Vector2(size, size));
+        if (ImGui.IsItemHovered())
+            ImGui.SetTooltip(tooltip);
+
+        var min = ImGui.GetItemRectMin();
+        using (Plugin.PluginInterface.UiBuilder.IconFontHandle.Push())
+        {
+            var glyph = icon.ToIconString();
+            var glyphSize = ImGui.CalcTextSize(glyph);
+            ImGui.GetWindowDrawList().AddText(
+                min + ((new Vector2(size, size) - glyphSize) * 0.5f),
+                ImGui.GetColorU32(Muted),
+                glyph);
+        }
+
+        return pressed;
+    }
+
     /// <summary>A button whose weight matches the consequence of pressing it.</summary>
     internal static bool ActionButton(FontAwesomeIcon icon, string label, Vector4 color, bool enabled = true)
     {

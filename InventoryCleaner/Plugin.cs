@@ -159,7 +159,7 @@ namespace InventoryCleaner
                || reason == DecisionReason.Kept_Allowlist;
 
         private void ToggleMainUi() => mainWindow.Toggle();
-        private void ToggleConfigUi() => configWindow.Toggle();
+        internal void ToggleConfigUi() => configWindow.Toggle();
         private void DrawUI() => WindowSystem.Draw();
     }
 }

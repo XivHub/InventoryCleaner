@@ -61,6 +61,9 @@ namespace InventoryCleaner.Windows
 
         private static float RowIconSize => ImGui.GetTextLineHeight() * 1.6f;
 
+        /// <summary>Room the scrolling region leaves for the action row beneath it.</summary>
+        private static float FooterHeight => ImGui.GetFrameHeightWithSpacing() + (Theme.Unit * 3f);
+
         public MainWindow(Plugin plugin, Configuration configuration) : base("InventoryCleaner###InventoryCleanerMain")
         {
             this.plugin = plugin;
@@ -129,6 +132,10 @@ namespace InventoryCleaner.Windows
                 ImGui.GetWindowWidth() - width - ImGui.GetStyle().WindowPadding.X));
             Theme.Chip(label, free > 0 ? Theme.Muted : Theme.Danger);
 
+            ImGui.SameLine();
+            if (Theme.IconButton(FontAwesomeIcon.Cog, "Settings"))
+                plugin.ToggleConfigUi();
+
             ImGui.Separator();
             Theme.Gap(0.5f);
         }
@@ -173,9 +180,64 @@ namespace InventoryCleaner.Windows
             if (blocked)
                 ImGui.TextColored(Theme.Danger, "Your bags are full, so there is nowhere to move gear to.");
 
-            Theme.Gap();
+            DrawArmouryOverview();
+            Theme.Gap(0.5f);
+
             if (Theme.ActionButton(FontAwesomeIcon.Search, reverse ? "Plan restock" : "Plan clean", Theme.Brass, !blocked))
                 BuildPreview(reverse ? ReversePlanner.Plan(cfg) : CleanPlanner.Plan(cfg), reverse);
+        }
+
+        /// <summary>
+        /// The Armoury Chest as it stands: one row per rack with its fill gauge, fullest first —
+        /// which is both the answer to "where is my space going" and the order a clean works through.
+        /// </summary>
+        private void DrawArmouryOverview()
+        {
+            var usage = InventoryReader.ArmouryUsage();
+            var racks = usage.OrderByDescending(kv => (float)kv.Value.Used / kv.Value.Size)
+                             .ThenBy(kv => (int)kv.Key)
+                             .ToList();
+
+            var used = racks.Sum(r => r.Value.Used);
+            var size = racks.Sum(r => r.Value.Size);
+            var gearsets = GearsetReader.All().Count();
+
+            Theme.Chip($"{used} of {size} armoury slots used", used >= size ? Theme.Danger : Theme.Muted);
+            ImGui.SameLine();
+            Theme.Chip($"{gearsets} gearsets", Theme.Keep);
+
+            Theme.Gap(0.5f);
+
+            using var table = ImRaii.Table(
+                "###InventoryCleanerRacks",
+                3,
+                ImGuiTableFlags.RowBg | ImGuiTableFlags.ScrollY | ImGuiTableFlags.SizingStretchProp,
+                new Vector2(-1, -FooterHeight));
+            if (!table)
+                return;
+
+            ImGui.TableSetupColumn("Rack", ImGuiTableColumnFlags.WidthFixed, ImGui.CalcTextSize("Soul Crystals").X + Theme.Unit);
+            ImGui.TableSetupColumn("Slots", ImGuiTableColumnFlags.WidthFixed, ImGui.CalcTextSize("00/00").X + Theme.Unit);
+            ImGui.TableSetupColumn("Fill", ImGuiTableColumnFlags.WidthStretch, 1f);
+
+            foreach (var rack in racks)
+            {
+                var fill = (float)rack.Value.Used / rack.Value.Size;
+
+                ImGui.TableNextRow();
+                ImGui.TableSetColumnIndex(0);
+                ImGui.TextUnformatted(EquipSlotExtensions.ContainerName(rack.Key));
+
+                ImGui.TableSetColumnIndex(1);
+                ImGui.TextColored(Theme.Muted, $"{rack.Value.Used}/{rack.Value.Size}");
+
+                ImGui.TableSetColumnIndex(2);
+                ImGui.SetCursorPosY(ImGui.GetCursorPosY() + (ImGui.GetTextLineHeight() * 0.3f));
+                Theme.FillBar(
+                    fill,
+                    new Vector2(MathF.Max(24f, ImGui.GetContentRegionAvail().X - Theme.Unit), Theme.Unit * 0.9f),
+                    fill >= 0.9f ? Theme.Danger : Theme.Brass);
+            }
         }
 
         private void BuildPreview(List<MovePlan> plans, bool reverse)
@@ -336,7 +398,7 @@ namespace InventoryCleaner.Windows
                 ImGuiTableFlags.SizingStretchProp;
 
             var icon = RowIconSize;
-            using var table = ImRaii.Table("###InventoryCleanerPreview", 4, flags, new Vector2(-1, 260));
+            using var table = ImRaii.Table("###InventoryCleanerPreview", 4, flags, new Vector2(-1, -FooterHeight));
             if (!table)
                 return;
 
@@ -488,7 +550,7 @@ namespace InventoryCleaner.Windows
                 discardSelection.Clear();
 
             Theme.Gap();
-            DiscardGrid.Draw(discardCandidates, discardSelection, cfg.DiscardCellScale, new Vector2(-1, 300));
+            DiscardGrid.Draw(discardCandidates, discardSelection, cfg.DiscardCellScale, new Vector2(-1, -FooterHeight));
             Theme.Gap();
 
             if (!discardArmed)

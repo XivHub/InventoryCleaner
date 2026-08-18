@@ -61,20 +61,32 @@ internal static class InventoryReader
     internal static IEnumerable<InventoryItem> MainInventoryItems() => ScanContainers(MainInventoryContainers);
 
     /// <summary>
+    /// Occupied and total slots of every armoury container, keyed by container. Containers that
+    /// report no size are omitted.
+    /// </summary>
+    internal static Dictionary<InventoryType, (int Used, int Size)> ArmouryUsage()
+    {
+        var result = new Dictionary<InventoryType, (int, int)>();
+        foreach (var type in ArmouryContainers)
+        {
+            var usage = InventoryScan.ContainerUsage(type);
+            if (usage.Size > 0)
+                result[type] = usage;
+        }
+
+        return result;
+    }
+
+    /// <summary>
     /// Fill ratio (occupied slots / container size) of every armoury container, keyed by container.
-    /// Containers that report no size are omitted. Drives the fullest-container-first move order:
-    /// emptying the tightest container first is what actually buys back armoury space when the main
-    /// inventory runs out mid-run.
+    /// Drives the fullest-container-first move order: emptying the tightest container first is what
+    /// actually buys back armoury space when the main inventory runs out mid-run.
     /// </summary>
     internal static Dictionary<InventoryType, float> ArmouryOccupancy()
     {
         var result = new Dictionary<InventoryType, float>();
-        foreach (var type in ArmouryContainers)
-        {
-            var (used, size) = InventoryScan.ContainerUsage(type);
-            if (size > 0)
-                result[type] = (float)used / size;
-        }
+        foreach (var kv in ArmouryUsage())
+            result[kv.Key] = (float)kv.Value.Used / kv.Value.Size;
 
         return result;
     }
