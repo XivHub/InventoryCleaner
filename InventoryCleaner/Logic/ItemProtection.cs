@@ -1,4 +1,5 @@
 using System;
+using InventoryCleaner.Game;
 using InventoryCleaner.Models;
 
 namespace InventoryCleaner.Logic;
@@ -13,14 +14,14 @@ internal static class ItemProtection
     private const string UltimatePrefix = "Ultimate";
 
     /// <summary>
-    /// Whether <paramref name="item"/> is protected from destruction, and why. Two rules apply:
+    /// Whether <paramref name="item"/> is protected from destruction, and why.
     ///
     /// Ultimate raid weapons are named "Ultimate ..." in most tiers (UCoB's Ultimate Dreadwyrm
-    /// series, TEA's Ultimate Almace, DSR's ... of the Heavens, TOP's Ultimate Omega), but not all:
-    /// The Weapon's Refrain names its weapons "&lt;weapon&gt; Ultima" (Bravura Ultima, Curtana
-    /// Ultima). A name prefix alone would leave those unprotected, so any weapon of rare (blue)
-    /// quality or better is protected structurally as well — that quality tier is scarce enough on
-    /// weapons that over-protecting costs nothing, and it holds in every client language.
+    /// series, TEA's Ultimate Almace, TOP's Ultimate Omega), but not all: The Weapon's Refrain names
+    /// its weapons "&lt;weapon&gt; Ultima". Those are caught structurally instead — a weapon that is
+    /// both unique and untradable at rare quality or better is by definition not re-obtainable
+    /// through any market or duplicate drop. Rare quality alone is deliberately *not* enough: plenty
+    /// of ordinary junk carries it.
     /// </summary>
     internal static bool IsProtected(InventoryItem item, out string reason)
     {
@@ -30,9 +31,24 @@ internal static class ItemProtection
             return true;
         }
 
-        if (IsWeapon(item.Slot) && item.Rarity >= 3)
+        var row = Sheets.ById(item.ItemId);
+        if (row == null)
         {
-            reason = "rare-quality weapon";
+            reason = "unknown item";
+            return true;
+        }
+
+        // The game's own undiscardable flag. Attempting these would fail anyway; refusing up front
+        // keeps them out of the grid instead of burning a queue slot on a dialog that never appears.
+        if (row.Value.IsIndisposable)
+        {
+            reason = "the game does not allow discarding this";
+            return true;
+        }
+
+        if (IsWeapon(item.Slot) && item.Rarity >= 3 && row.Value.IsUnique && row.Value.IsUntradable)
+        {
+            reason = "unique untradable weapon";
             return true;
         }
 

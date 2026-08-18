@@ -50,6 +50,7 @@ namespace InventoryCleaner.Windows
         private Dictionary<InventoryType, (int Used, int Size)> previewUsage = new();
 
         private List<InventoryItem> discardCandidates = new();
+        private List<ProtectedItem> discardWithheld = new();
         private readonly HashSet<(InventoryType Container, int Slot)> discardSelection = new();
         private int discardIlvlCutoff;
         private bool discardArmed;
@@ -412,7 +413,9 @@ namespace InventoryCleaner.Windows
 
         private void RefreshDiscardCandidates()
         {
-            discardCandidates = DiscardPlanner.Candidates(cfg);
+            var built = DiscardPlanner.Build(cfg);
+            discardCandidates = built.Discardable;
+            discardWithheld = built.Withheld;
             discardSelection.Clear();
             discardArmed = false;
             discardSummary = null;
@@ -444,13 +447,21 @@ namespace InventoryCleaner.Windows
                 Theme.Chip($"{discardSelection.Count} marked", Theme.Danger);
             }
 
+            if (discardWithheld.Count > 0)
+            {
+                ImGui.SameLine();
+                Theme.Chip($"{discardWithheld.Count} withheld", Theme.Brass);
+                if (ImGui.IsItemHovered())
+                    DrawWithheldTooltip();
+            }
+
             ImGui.SameLine();
             if (Theme.ActionButton(FontAwesomeIcon.SyncAlt, "Rescan", Theme.Muted))
                 RefreshDiscardCandidates();
 
             ImGui.TextColored(
                 Theme.Muted,
-                "Equipped gear, anything a gearset uses, your allowlist and Ultimate weapons are never listed here.");
+                "Equipped gear, anything a gearset uses, and your allowlist are never listed here.");
 
             Theme.Gap();
             ImGui.TextUnformatted("Mark everything up to ilvl");
@@ -498,6 +509,30 @@ namespace InventoryCleaner.Windows
             ImGui.SameLine();
             if (Theme.ActionButton(FontAwesomeIcon.Times, "Keep them", Theme.Muted))
                 discardArmed = false;
+        }
+
+        /// <summary>
+        /// Names what the protection rules held back, so an item missing from the grid is
+        /// explainable rather than mysterious.
+        /// </summary>
+        private void DrawWithheldTooltip()
+        {
+            const int limit = 12;
+            using var tooltip = ImRaii.Tooltip();
+            ImGui.TextColored(Theme.Brass, "Held back as unrecoverable");
+            ImGui.Separator();
+
+            for (var i = 0; i < discardWithheld.Count && i < limit; i++)
+            {
+                var withheld = discardWithheld[i];
+                using (ImRaii.PushColor(ImGuiCol.Text, Sheets.RarityColorU32(withheld.Item.ItemId)))
+                    ImGui.TextUnformatted(ItemLabel(withheld.Item));
+                ImGui.SameLine();
+                ImGui.TextColored(Theme.Muted, $"· {withheld.Reason}");
+            }
+
+            if (discardWithheld.Count > limit)
+                ImGui.TextColored(Theme.Muted, $"and {discardWithheld.Count - limit} more");
         }
 
         private void StartDiscard()
