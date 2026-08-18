@@ -3,7 +3,7 @@
 	<PropertyGroup>
 		<Authors>Zhyra</Authors>
 		<Company>ZhyraPlugins</Company>
-		<Version>0.1.0</Version>
+		<Version>0.4.0</Version>
 		<Description>Tidies up your inventory.</Description>
 		<PackageLicenseExpression>AGPL-3.0-or-later</PackageLicenseExpression>
 		<IsPackable>false</IsPackable>
@@ -14,6 +14,15 @@
 
 	<ItemGroup>
 		<PackageReference Include="ECommons" Version="3.2.1.6" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Compile Include="..\..\ZhyraPluginKit\KitServices.cs" Link="Kit\KitServices.cs" />
+		<Compile Include="..\..\ZhyraPluginKit\Inventory\ItemSheet.cs" Link="Kit\Inventory\ItemSheet.cs" />
+		<Compile Include="..\..\ZhyraPluginKit\Inventory\InventoryScan.cs" Link="Kit\Inventory\InventoryScan.cs" />
+		<Compile Include="..\..\ZhyraPluginKit\Inventory\SlotView.cs" Link="Kit\Inventory\SlotView.cs" />
+		<Compile Include="..\..\ZhyraPluginKit\Inventory\MoveOp.cs" Link="Kit\Inventory\MoveOp.cs" />
+		<Compile Include="..\..\ZhyraPluginKit\Inventory\MoveQueue.cs" Link="Kit\Inventory\MoveQueue.cs" />
 	</ItemGroup>
 
 </Project>
