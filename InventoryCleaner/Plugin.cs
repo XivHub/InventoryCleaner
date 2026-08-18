@@ -10,7 +10,7 @@ using InventoryCleaner.Execution;
 using InventoryCleaner.Game;
 using InventoryCleaner.Logic;
 using InventoryCleaner.Windows;
-using ZhyraPluginKit;
+using XivHubPluginKit;
 
 namespace InventoryCleaner
 {

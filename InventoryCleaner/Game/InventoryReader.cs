@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using FFXIVClientStructs.FFXIV.Client.Game;
-using ZhyraPluginKit.Inventory;
+using XivHubPluginKit.Inventory;
 using InventoryItem = InventoryCleaner.Models.InventoryItem;
 
 namespace InventoryCleaner.Game;

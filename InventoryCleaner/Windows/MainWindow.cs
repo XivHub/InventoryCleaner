@@ -11,7 +11,7 @@ using FFXIVClientStructs.FFXIV.Client.Game;
 using InventoryCleaner.Game;
 using InventoryCleaner.Logic;
 using InventoryCleaner.Models;
-using ZhyraPluginKit.Inventory;
+using XivHubPluginKit.Inventory;
 using InventoryItem = InventoryCleaner.Models.InventoryItem;
 
 namespace InventoryCleaner.Windows

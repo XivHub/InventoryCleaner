@@ -3,8 +3,8 @@ using System.Linq;
 using FFXIVClientStructs.FFXIV.Client.Game;
 using InventoryCleaner.Logic;
 using InventoryCleaner.Models;
-using ZhyraPluginKit.Inventory;
-using KitMoveQueue = ZhyraPluginKit.Inventory.MoveQueue;
+using XivHubPluginKit.Inventory;
+using KitMoveQueue = XivHubPluginKit.Inventory.MoveQueue;
 
 namespace InventoryCleaner.Execution;
 

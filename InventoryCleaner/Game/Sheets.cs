@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Dalamud.Utility;
 using Lumina.Excel;
 using Lumina.Excel.Sheets;
-using KitItemSheet = ZhyraPluginKit.Inventory.ItemSheet;
+using KitItemSheet = XivHubPluginKit.Inventory.ItemSheet;
 
 namespace InventoryCleaner.Game;
 

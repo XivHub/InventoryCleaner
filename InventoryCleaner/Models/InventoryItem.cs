@@ -1,7 +1,7 @@
 using FFXIVClientStructs.FFXIV.Client.Game;
 using Lumina.Excel.Sheets;
 using InventoryCleaner.Game;
-using ZhyraPluginKit.Inventory;
+using XivHubPluginKit.Inventory;
 using GameInventoryItem = FFXIVClientStructs.FFXIV.Client.Game.InventoryItem;
 
 namespace InventoryCleaner.Models;
@@ -102,7 +102,7 @@ internal sealed class InventoryItem
 
     /// <summary>
     /// Builds an <see cref="InventoryItem"/> from a kit <see cref="SlotView"/> (produced by
-    /// <see cref="ZhyraPluginKit.Inventory.InventoryScan.ScanContainer"/>), used by
+    /// <see cref="XivHubPluginKit.Inventory.InventoryScan.ScanContainer"/>), used by
     /// <see cref="InventoryReader"/>'s thin wrappers over the kit scan. <see cref="SlotView"/> does
     /// not carry <see cref="EquipLevel"/>/<see cref="Rarity"/>/<see cref="Slot"/>, so those are
     /// resolved from the <c>Item</c> row via <see cref="Sheets.ById"/>, mirroring
