@@ -502,6 +502,9 @@ namespace InventoryCleaner.Windows
 
         private void DrawDiscardPicker()
         {
+            var markedSeals = discardCandidates.Count(
+                i => i.CanTradeForSeals && discardSelection.Contains((i.Container, i.SlotIndex)));
+
             Theme.Chip($"{discardCandidates.Count} eligible", Theme.Muted);
             if (discardSelection.Count > 0)
             {
@@ -571,7 +574,11 @@ namespace InventoryCleaner.Windows
                 discardSelection.Clear();
 
             Theme.Gap();
-            DiscardGrid.Draw(discardCandidates, discardSelection, cfg.DiscardCellScale, new Vector2(-1, -FooterHeight));
+            DiscardGrid.Draw(
+                discardCandidates,
+                discardSelection,
+                cfg.DiscardCellScale,
+                new Vector2(-1, -DiscardFooterHeight(markedSeals)));
             Theme.Gap();
 
             if (!discardArmed)
@@ -587,8 +594,6 @@ namespace InventoryCleaner.Windows
 
             ImGui.TextColored(Theme.Danger, $"Destroy {discardSelection.Count} items. This cannot be undone.");
 
-            var markedSeals = discardCandidates.Count(
-                i => i.CanTradeForSeals && discardSelection.Contains((i.Container, i.SlotIndex)));
             if (markedSeals > 0)
                 ImGui.TextColored(
                     Theme.Seals,
@@ -624,6 +629,20 @@ namespace InventoryCleaner.Windows
 
             if (discardWithheld.Count > limit)
                 ImGui.TextColored(Theme.Muted, $"and {discardWithheld.Count - limit} more");
+        }
+
+        /// <summary>
+        /// Room the grid leaves below itself. Arming the discard adds a warning line, and a second
+        /// one when seal-worthy gear is marked, so the reservation has to grow with them or the
+        /// confirm buttons fall off the bottom of the window.
+        /// </summary>
+        private float DiscardFooterHeight(int markedSeals)
+        {
+            if (!discardArmed)
+                return FooterHeight;
+
+            var warningLines = markedSeals > 0 ? 2f : 1f;
+            return FooterHeight + (ImGui.GetTextLineHeightWithSpacing() * warningLines) + Theme.Unit;
         }
 
         private void StartDiscard()

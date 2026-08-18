@@ -3,7 +3,7 @@
 	<PropertyGroup>
 		<Authors>Zhyra</Authors>
 		<Company>ZhyraPlugins</Company>
-		<Version>0.7.0</Version>
+		<Version>0.7.1</Version>
 		<Description>Tidies up your inventory.</Description>
 		<PackageLicenseExpression>AGPL-3.0-or-later</PackageLicenseExpression>
 		<IsPackable>false</IsPackable>
