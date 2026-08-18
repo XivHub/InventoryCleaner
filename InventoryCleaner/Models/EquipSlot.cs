@@ -49,6 +49,28 @@ namespace InventoryCleaner.Models
             _ => null,
         };
 
+        /// <summary>Readable name for a container, for headings and row provenance.</summary>
+        public static string ContainerName(InventoryType container) => container switch
+        {
+            InventoryType.ArmoryMainHand => "Main Hand",
+            InventoryType.ArmoryOffHand => "Off Hand",
+            InventoryType.ArmoryHead => "Head",
+            InventoryType.ArmoryBody => "Body",
+            InventoryType.ArmoryHands => "Hands",
+            InventoryType.ArmoryLegs => "Legs",
+            InventoryType.ArmoryFeets => "Feet",
+            InventoryType.ArmoryEar => "Earrings",
+            InventoryType.ArmoryNeck => "Necklaces",
+            InventoryType.ArmoryWrist => "Bracelets",
+            InventoryType.ArmoryRings => "Rings",
+            InventoryType.ArmorySoulCrystal => "Soul Crystals",
+            InventoryType.Inventory1 => "Bag 1",
+            InventoryType.Inventory2 => "Bag 2",
+            InventoryType.Inventory3 => "Bag 3",
+            InventoryType.Inventory4 => "Bag 4",
+            _ => container.ToString(),
+        };
+
         /// <summary>
         /// The armoury container that holds items for <paramref name="slot"/>. Ring1 and Ring2 both
         /// map to <see cref="InventoryType.ArmoryRings"/> (the ring container is shared).

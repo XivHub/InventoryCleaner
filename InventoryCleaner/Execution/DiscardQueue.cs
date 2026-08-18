@@ -135,6 +135,15 @@ internal sealed unsafe class DiscardQueue
         var item = this.queue.Dequeue();
         this.Current = item;
 
+        // Re-checked here and not only at plan time: nothing reaches the game's discard call without
+        // passing the protection rules on the same frame it is issued.
+        if (Logic.ItemProtection.IsProtected(item, out var reason))
+        {
+            Plugin.Logger.Warning($"Refusing to discard {item.Name}: {reason}.");
+            this.Skipped++;
+            return true;
+        }
+
         var slot = LiveSlot(item);
         if (slot == null)
         {

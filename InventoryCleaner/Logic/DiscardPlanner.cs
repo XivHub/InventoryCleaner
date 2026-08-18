@@ -6,9 +6,10 @@ namespace InventoryCleaner.Logic;
 
 /// <summary>
 /// Read-only builder for the discard grid: every equippable main-inventory item that is safe to
-/// offer for destruction. Three sets are excluded outright and can never reach the grid — allowlisted
-/// item ids, items currently equipped, and items any saved gearset references — so the only way to
-/// lose a piece of gear you rely on is to remove it from those first. No game writes.
+/// offer for destruction. Four sets are excluded outright and can never reach the grid — allowlisted
+/// item ids, items currently equipped, items any saved gearset references, and everything
+/// <see cref="ItemProtection"/> covers — so the only way to lose a piece of gear you rely on is to
+/// remove it from those first. No game writes.
 /// </summary>
 internal static class DiscardPlanner
 {
@@ -37,6 +38,9 @@ internal static class DiscardPlanner
 
             var slot = item.Slot ?? EquipSlotExtensions.FromEquipSlotCategory(Sheets.EquipSlotCategory(item.ItemId));
             if (slot == null)
+                continue;
+
+            if (ItemProtection.IsProtected(item, out _))
                 continue;
 
             candidates.Add(item);

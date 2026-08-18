@@ -21,10 +21,6 @@ namespace InventoryCleaner.Windows;
 /// </summary>
 internal static class DiscardGrid
 {
-    private static readonly Vector4 SlotBg = new(0.09f, 0.09f, 0.11f, 0.95f);
-    private static readonly Vector4 SlotBorder = new(0.30f, 0.30f, 0.34f, 1f);
-    private static readonly Vector4 DangerColor = new(0.90f, 0.28f, 0.28f, 1f);
-    private static readonly Vector4 SpiritbondColor = new(0.95f, 0.80f, 0.35f, 1f);
     private const float SlotRounding = 3f;
     private const float Gap = 4f;
 
@@ -87,7 +83,7 @@ internal static class DiscardGrid
         var dl = ImGui.GetWindowDrawList();
         var rarity = Sheets.RarityColorU32(item.ItemId);
 
-        dl.AddRectFilled(min, max, ImGui.GetColorU32(SlotBg), SlotRounding, ImDrawFlags.None);
+        dl.AddRectFilled(min, max, ImGui.GetColorU32(Theme.Panel), SlotRounding, ImDrawFlags.None);
         dl.AddRectFilled(min, max, WithAlpha(rarity, 0.20f), SlotRounding, ImDrawFlags.None);
 
         var iconId = Sheets.IconId(item.ItemId);
@@ -97,6 +93,7 @@ internal static class DiscardGrid
             if (!wrap.Handle.IsNull)
                 dl.AddImage(wrap.Handle, min + new Vector2(1f, 1f), max - new Vector2(1f, 1f));
         }
+
 
         if (item.IsHq)
             CellText(dl, min + new Vector2(2f, 1f), SeIconChar.HighQuality.ToIconString());
@@ -115,14 +112,14 @@ internal static class DiscardGrid
         // Discarding a fully spiritbonded piece throws away the materia it would have yielded.
         if (item.Spiritbond >= 100)
         {
-            dl.AddCircleFilled(new Vector2(max.X - 6f, min.Y + 6f), 3.5f, ImGui.GetColorU32(SpiritbondColor));
+            dl.AddCircleFilled(new Vector2(max.X - 6f, min.Y + 6f), 3.5f, ImGui.GetColorU32(Theme.Materia));
             dl.AddCircle(new Vector2(max.X - 6f, min.Y + 6f), 3.5f, ImGui.GetColorU32(new Vector4(0f, 0f, 0f, 0.8f)), 0, 1f);
         }
 
         if (isSelected)
         {
-            dl.AddRectFilled(min, max, ImGui.GetColorU32(DangerColor with { W = 0.35f }), SlotRounding, ImDrawFlags.None);
-            dl.AddRect(min, max, ImGui.GetColorU32(DangerColor), SlotRounding, ImDrawFlags.None, 2.5f);
+            dl.AddRectFilled(min, max, ImGui.GetColorU32(Theme.Danger with { W = 0.35f }), SlotRounding, ImDrawFlags.None);
+            dl.AddRect(min, max, ImGui.GetColorU32(Theme.Danger), SlotRounding, ImDrawFlags.None, 2.5f);
         }
         else if (hovered)
         {
@@ -131,7 +128,7 @@ internal static class DiscardGrid
         else
         {
             dl.AddRect(min, max, rarity, SlotRounding, ImDrawFlags.None, 1.5f);
-            dl.AddRect(min, max, ImGui.GetColorU32(SlotBorder), SlotRounding, ImDrawFlags.None, 0.5f);
+            dl.AddRect(min, max, ImGui.GetColorU32(Theme.Rule), SlotRounding, ImDrawFlags.None, 0.5f);
         }
 
         if (hovered)
@@ -149,7 +146,7 @@ internal static class DiscardGrid
         ImGui.TextDisabled($"{RarityName(item.Rarity)} · ilvl {item.Ilvl} · {item.Slot}");
         ImGui.TextDisabled($"{item.Container}:{item.SlotIndex}");
         if (item.Spiritbond >= 100)
-            ImGui.TextColored(SpiritbondColor, "Spiritbond 100% — extract materia first");
+            ImGui.TextColored(Theme.Materia, "Spiritbond 100% — extract materia first");
 
         ImGui.Separator();
         ImGui.TextDisabled(isSelected ? "Click to unselect" : "Click to mark for discard");
