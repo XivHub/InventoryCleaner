@@ -12,6 +12,10 @@ namespace InventoryCleaner.Game;
 /// </summary>
 internal static class InventoryReader
 {
+    /// <summary>
+    /// The armoury containers worth scanning. <c>ArmoryWaist</c> is absent: belts stopped being
+    /// equippable in 6.0 and were removed from player inventories.
+    /// </summary>
     private static readonly InventoryType[] ArmouryContainers =
     {
         InventoryType.ArmoryMainHand,
@@ -19,7 +23,6 @@ internal static class InventoryReader
         InventoryType.ArmoryHead,
         InventoryType.ArmoryBody,
         InventoryType.ArmoryHands,
-        InventoryType.ArmoryWaist,
         InventoryType.ArmoryLegs,
         InventoryType.ArmoryFeets,
         InventoryType.ArmoryEar,

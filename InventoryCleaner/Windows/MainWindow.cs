@@ -223,6 +223,16 @@ namespace InventoryCleaner.Windows
             ImGui.SameLine();
             ImGui.TextDisabled($" · {keptCount} kept");
 
+            if (!plugin.pendingReverse)
+            {
+                var free = InventoryReader.FreeMainInventorySlots();
+                if (moveCount > free)
+                    ImGui.TextColored(
+                        MovedLowerIlvlColor,
+                        $"Only {free} free main inventory slots: {moveCount - free} will not fit and the run stops there. " +
+                        "The fullest armoury containers are emptied first.");
+            }
+
             ImGui.Spacing();
             DrawPlanTable(plans);
             ImGui.Spacing();
@@ -350,12 +360,16 @@ namespace InventoryCleaner.Windows
             ImGui.SameLine();
             if (ImGui.Button($"Select ilvl <= {discardIlvlCutoff}"))
             {
+                // Fully spiritbonded pieces are left out: bulk-selecting them would silently throw
+                // away the materia they are about to yield. They can still be picked by hand.
                 foreach (var item in discardCandidates)
                 {
-                    if (item.Ilvl <= discardIlvlCutoff)
+                    if (item.Ilvl <= discardIlvlCutoff && item.Spiritbond < 100)
                         discardSelection.Add((item.Container, item.SlotIndex));
                 }
             }
+            if (ImGui.IsItemHovered())
+                ImGui.SetTooltip("Skips items at 100% spiritbond.");
             ImGui.SameLine();
             if (ImGui.Button("Clear"))
                 discardSelection.Clear();

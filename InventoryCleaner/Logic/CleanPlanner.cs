@@ -30,7 +30,6 @@ internal static class CleanPlanner
         var equipped = InventoryReader.EquippedItems();
         var gearsets = GearsetReader.All();
         var armoury = InventoryReader.ArmouryItems();
-        _ = InventoryReader.MainInventoryItems();
 
         var equippedBySlot = BuildEquippedBySlot(equipped);
         var gearsetRefs = BuildGearsetRefs(gearsets);
