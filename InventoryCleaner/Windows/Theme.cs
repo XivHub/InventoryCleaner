@@ -9,10 +9,10 @@ using InventoryCleaner.Game;
 namespace InventoryCleaner.Windows;
 
 /// <summary>
-/// The plugin's visual vocabulary: five semantic colors and the handful of primitives every window
+/// The plugin's visual vocabulary: six semantic colors and the handful of primitives every window
 /// draws with. Colors are deliberately few — an item is kept, moved, destroyed, pinned by the user,
-/// or carries materia — and the nuance behind each decision lives in its reason text rather than in
-/// more hues.
+/// carries materia, or is worth seals — and the nuance behind each decision lives in its reason text
+/// rather than in more hues.
 /// </summary>
 internal static class Theme
 {
@@ -27,6 +27,9 @@ internal static class Theme
 
     /// <summary>Destruction, and anything that cannot be undone.</summary>
     internal static readonly Vector4 Danger = new(0.902f, 0.278f, 0.278f, 1f);
+
+    /// <summary>Value recoverable somewhere other than the bin: Grand Company seals.</summary>
+    internal static readonly Vector4 Seals = new(0.310f, 0.765f, 0.780f, 1f);
 
     /// <summary>Materia waiting to be extracted.</summary>
     internal static readonly Vector4 Materia = new(0.722f, 0.537f, 0.910f, 1f);

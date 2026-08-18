@@ -521,6 +521,15 @@ namespace InventoryCleaner.Windows
             if (Theme.ActionButton(FontAwesomeIcon.SyncAlt, "Rescan", Theme.Muted))
                 RefreshDiscardCandidates();
 
+            var sealWorthy = discardCandidates.Count(i => i.CanTradeForSeals);
+            if (sealWorthy > 0)
+            {
+                ImGui.SameLine();
+                Theme.Chip($"{sealWorthy} worth seals", Theme.Seals);
+                if (ImGui.IsItemHovered())
+                    ImGui.SetTooltip("Green and blue gear can go to your Grand Company for Expert Delivery seals. White cannot.");
+            }
+
             ImGui.TextColored(
                 Theme.Muted,
                 "Equipped gear, anything a gearset uses, and your allowlist are never listed here.");
@@ -546,6 +555,18 @@ namespace InventoryCleaner.Windows
             if (ImGui.IsItemHovered())
                 ImGui.SetTooltip("Skips items at 100% spiritbond.");
             ImGui.SameLine();
+            if (ImGui.Button("Only white"))
+            {
+                // The one tier with nothing to recover: no seals, so the bin is genuinely its best exit.
+                foreach (var item in discardCandidates)
+                {
+                    if (item.Ilvl <= discardIlvlCutoff && item.Spiritbond < 100 && !item.CanTradeForSeals)
+                        discardSelection.Add((item.Container, item.SlotIndex));
+                }
+            }
+            if (ImGui.IsItemHovered())
+                ImGui.SetTooltip("Same as Mark, but skips anything a Grand Company would pay seals for.");
+            ImGui.SameLine();
             if (ImGui.Button("Clear marks"))
                 discardSelection.Clear();
 
@@ -565,6 +586,14 @@ namespace InventoryCleaner.Windows
             }
 
             ImGui.TextColored(Theme.Danger, $"Destroy {discardSelection.Count} items. This cannot be undone.");
+
+            var markedSeals = discardCandidates.Count(
+                i => i.CanTradeForSeals && discardSelection.Contains((i.Container, i.SlotIndex)));
+            if (markedSeals > 0)
+                ImGui.TextColored(
+                    Theme.Seals,
+                    $"{markedSeals} of them would earn Grand Company seals through Expert Delivery.");
+
             Theme.Gap(0.5f);
             if (Theme.ActionButton(FontAwesomeIcon.TrashAlt, "Destroy them", Theme.Danger))
                 StartDiscard();

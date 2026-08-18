@@ -43,6 +43,13 @@ internal sealed class InventoryItem
     /// <summary>Spiritbond percent (0-100) from <c>GameInventoryItem.SpiritbondOrCollectability</c>.</summary>
     public readonly byte Spiritbond;
 
+    /// <summary>
+    /// Whether a Grand Company will take this piece in Expert Delivery for seals. Uncommon (green)
+    /// and rare (blue) gear qualifies; common (white) does not, and is the only tier with no better
+    /// exit than the bin.
+    /// </summary>
+    public bool CanTradeForSeals => this.Rarity is 2 or 3;
+
     private InventoryItem(
         uint itemId,
         EquipSlot? slot,

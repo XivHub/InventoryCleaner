@@ -109,6 +109,19 @@ internal static class DiscardGrid
             ImDrawFlags.None);
         CellText(dl, ilvlPos, ilvl);
 
+        // Green and blue gear is Expert Delivery material: a Grand Company pays seals for it, so the
+        // bin is the worst of the available exits. White has no such alternative.
+        if (item.CanTradeForSeals)
+        {
+            var bar = new Vector2(min.X + 2f, max.Y - 3f);
+            dl.AddRectFilled(
+                bar,
+                new Vector2(min.X + (cell * 0.34f), max.Y - 1f),
+                ImGui.GetColorU32(Theme.Seals),
+                1f,
+                ImDrawFlags.None);
+        }
+
         // Discarding a fully spiritbonded piece throws away the materia it would have yielded.
         if (item.Spiritbond >= 100)
         {
@@ -144,6 +157,8 @@ internal static class DiscardGrid
 
         ImGui.TextDisabled($"{RarityName(item.Rarity)} · ilvl {item.Ilvl} · {item.Slot}");
         ImGui.TextDisabled($"{item.Container}:{item.SlotIndex}");
+        if (item.CanTradeForSeals)
+            ImGui.TextColored(Theme.Seals, "Worth Grand Company seals — Expert Delivery beats the bin");
         if (item.Spiritbond >= 100)
             ImGui.TextColored(Theme.Materia, "Spiritbond 100% — extract materia first");
 
