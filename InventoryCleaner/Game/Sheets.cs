@@ -1,5 +1,6 @@
 using System.Buffers.Binary;
 using System.Collections.Generic;
+using System.Linq;
 using Dalamud.Utility;
 using Lumina.Excel;
 using Lumina.Excel.Sheets;
@@ -20,6 +21,25 @@ internal static class Sheets
 
     /// <summary>Cache of ClassJobCategory RowId → the set of ClassJob RowIds it permits.</summary>
     private static readonly Dictionary<uint, HashSet<uint>> JobsByCategory = new();
+
+    /// <summary>Stand-in for an item whose sheet row is missing: no job may equip it.</summary>
+    private static readonly HashSet<uint> NoJobs = new();
+
+    /// <summary>ClassJob RowId of Blue Mage, the limited job.</summary>
+    private const uint BlueMage = 36;
+
+    /// <summary>
+    /// ClassJob RowIds of the Disciples of War and Magic: 1-7 (the ARR base classes) and 19-42
+    /// (every job, plus the later base classes ACN and ROG). 8-15 are the Disciples of the Hand and
+    /// 16-18 the Disciples of the Land, neither of which shares gear with a combat class. Blue Mage
+    /// is left out: as a limited job it is absent from some categories that are otherwise open to
+    /// the whole roster, and demanding it there would hide gear the rest of the roster shares.
+    /// </summary>
+    private static readonly uint[] CombatJobs = Enumerable.Range(1, 7)
+        .Concat(Enumerable.Range(19, 24))
+        .Select(i => (uint)i)
+        .Where(i => i != BlueMage)
+        .ToArray();
 
     /// <summary>The cached <see cref="Item"/> sheet, or null if unavailable (e.g. before login).</summary>
     internal static ExcelSheet<Item>? ItemSheetOrNull => ItemSheet;
@@ -68,13 +88,36 @@ internal static class Sheets
     /// </summary>
     internal static bool CanJobEquip(uint itemId, uint classJobId)
     {
+        var jobs = EquipJobs(itemId);
+        return jobs == null || jobs.Contains(classJobId);
+    }
+
+    /// <summary>
+    /// Whether every Disciple of War or Magic may equip the item, i.e. the "All Classes" and
+    /// "Disciples of War or Magic" categories. Such a piece out-ilvls the gear of any job still
+    /// levelling, so a single low-level gearset would keep every one of them under the upgrade
+    /// rule; <see cref="Configuration.MoveAllClassesGear"/> uses this to exclude them from it.
+    /// </summary>
+    internal static bool AllCombatJobsCanEquip(uint itemId)
+    {
+        var jobs = EquipJobs(itemId);
+        return jobs == null || CombatJobs.All(jobs.Contains);
+    }
+
+    /// <summary>
+    /// The ClassJob RowIds that may equip the item, or null when the item carries no
+    /// <see cref="Item.ClassJobCategory"/> and anyone may wear it. An item whose row is missing
+    /// resolves to the empty set, so no job can equip it.
+    /// </summary>
+    private static HashSet<uint>? EquipJobs(uint itemId)
+    {
         var row = ById(itemId);
         if (!row.HasValue)
-            return false;
+            return NoJobs;
 
         var catRef = row.Value.ClassJobCategory;
         if (catRef.RowId == 0)
-            return true;
+            return null;
 
         if (!JobsByCategory.TryGetValue(catRef.RowId, out var jobs))
         {
@@ -82,7 +125,7 @@ internal static class Sheets
             JobsByCategory[catRef.RowId] = jobs;
         }
 
-        return jobs.Contains(classJobId);
+        return jobs;
     }
 
     private static readonly ExcelSheet<UIColor>? UIColorSheet = Plugin.DataManager.GetExcelSheet<UIColor>();

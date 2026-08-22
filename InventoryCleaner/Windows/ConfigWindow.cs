@@ -82,6 +82,12 @@ namespace InventoryCleaner.Windows
             ImGui.TextDisabled("keep if ilvl > gearset max + margin");
 
             DrawUpgradeJobs();
+
+            ImGui.Spacing();
+            DrawToggle("Move \"All Classes\" gear", FontAwesomeIcon.Users,
+                "Gear every combat job can wear is moved instead of kept as an upgrade; one levelling job otherwise keeps the whole pile. Equipped, gearset and allowlist items are still kept.",
+                v => cfg.MoveAllClassesGear = v, cfg.MoveAllClassesGear);
+
             ImGui.EndDisabled();
             ImGui.Unindent();
 

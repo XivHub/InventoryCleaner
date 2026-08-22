@@ -126,6 +126,11 @@ internal static class CleanPlanner
         // uses in that slot, AND that gearset's job can actually equip the item. Compared per
         // gearset (not against a global max) so an upgrade for a lower-ilvl job is still kept.
         var margin = c.UpgradeMarginIlvl < 0 ? 0 : c.UpgradeMarginIlvl;
+
+        // Gear every combat job can wear beats whatever a levelling job's gearset holds, so it is
+        // an upgrade for that job no matter how much better the rest of the roster is geared. When
+        // the toggle is set such a piece is moved on the upgrade match rather than kept.
+        var allClasses = c.MoveAllClassesGear && Sheets.AllCombatJobsCanEquip(item.ItemId);
         if (c.KeepUpgrade)
         {
             foreach (var gs in gearsetSlots)
@@ -135,8 +140,16 @@ internal static class CleanPlanner
 
                 foreach (var slot in slotsToCheck)
                 {
-                    if (gs.SlotIlvls.TryGetValue(slot, out var gsIlvl) && item.Ilvl > gsIlvl + margin)
-                        return new MovePlan(
+                    if (!gs.SlotIlvls.TryGetValue(slot, out var gsIlvl) || item.Ilvl <= gsIlvl + margin)
+                        continue;
+
+                    return allClasses
+                        ? new MovePlan(
+                            item,
+                            primarySlot,
+                            DecisionReason.Moved_AllClasses,
+                            $"ilvl {item.Ilvl} beats {gs.Name}'s {gsIlvl}, but any combat job can wear it")
+                        : new MovePlan(
                             item,
                             primarySlot,
                             DecisionReason.Kept_Upgrade,

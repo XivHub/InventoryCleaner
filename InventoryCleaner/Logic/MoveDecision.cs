@@ -26,6 +26,9 @@ internal enum DecisionReason
     /// <summary>Reserved for the Phase 5E cross-container duplicate pass; never produced by Phase 2.</summary>
     Moved_Duplicate,
 
+    /// <summary>Every combat job can wear the item, so it is moved instead of kept as an upgrade.</summary>
+    Moved_AllClasses,
+
     /// <summary>Slot is used by a gearset but the item upgrades none of them (for a job that can equip it); moved as inferior.</summary>
     Moved_LowerIlvl,
 

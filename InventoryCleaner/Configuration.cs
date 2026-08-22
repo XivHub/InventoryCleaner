@@ -20,6 +20,14 @@ namespace InventoryCleaner
 
         public bool MoveNoGearsetRef { get; set; } = true;
 
+        /// <summary>
+        /// When set, gear every Disciple of War or Magic can equip ("All Classes" and "Disciples of
+        /// War or Magic" pieces) is never kept as an upgrade: one levelling job would otherwise keep
+        /// the whole ARR accessory pile forever. Equipped pieces, exact gearset references and the
+        /// allowlist still keep such an item.
+        /// </summary>
+        public bool MoveAllClassesGear { get; set; } = false;
+
         public List<uint> AllowlistItemIds { get; set; } = new List<uint>();
 
         /// <summary>
