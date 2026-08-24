@@ -8,6 +8,7 @@ using Dalamud.Interface.Utility.Raii;
 using FFXIVClientStructs.FFXIV.Client.Game;
 using InventoryCleaner.Game;
 using InventoryCleaner.Models;
+using XivHubPluginKit.UI;
 using InventoryItem = InventoryCleaner.Models.InventoryItem;
 
 namespace InventoryCleaner.Windows;
@@ -83,7 +84,7 @@ internal static class DiscardGrid
         var dl = ImGui.GetWindowDrawList();
         var rarity = Sheets.RarityColorU32(item.ItemId);
 
-        dl.AddRectFilled(min, max, ImGui.GetColorU32(Theme.Panel), SlotRounding, ImDrawFlags.None);
+        dl.AddRectFilled(min, max, ImGui.GetColorU32(HubColors.Get("HubWindowBg")), SlotRounding, ImDrawFlags.None);
         dl.AddRectFilled(min, max, WithAlpha(rarity, 0.07f), SlotRounding, ImDrawFlags.None);
 
         var iconId = Sheets.IconId(item.ItemId);
@@ -136,7 +137,7 @@ internal static class DiscardGrid
         }
         else if (hovered)
         {
-            dl.AddRect(min, max, ImGui.GetColorU32(new Vector4(1f, 1f, 1f, 0.65f)), SlotRounding, ImDrawFlags.None, 1.5f);
+            dl.AddRect(min, max, ImGui.GetColorU32(HubStyle.Accent with { W = 0.65f }), SlotRounding, ImDrawFlags.None, 1.5f);
         }
         else
         {

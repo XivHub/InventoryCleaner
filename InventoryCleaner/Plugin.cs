@@ -11,6 +11,7 @@ using InventoryCleaner.Game;
 using InventoryCleaner.Logic;
 using InventoryCleaner.Windows;
 using XivHubPluginKit;
+using XivHubPluginKit.UI;
 
 namespace InventoryCleaner
 {
@@ -34,6 +35,10 @@ namespace InventoryCleaner
 
         public Configuration Configuration { get; init; }
         public static Configuration C { get; private set; } = null!;
+
+        /// <summary>Shared across every XIV Hub plugin; see XivHubPluginKit/UI/THEME.md.</summary>
+        public static HubThemeConfigService ThemeConfig { get; private set; } = null!;
+
         public WindowSystem WindowSystem = new("InventoryCleaner");
         private readonly MainWindow mainWindow;
         private readonly ConfigWindow configWindow;
@@ -53,6 +58,11 @@ namespace InventoryCleaner
             this.Configuration = PluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
             this.Configuration.Initialize(PluginInterface);
             C = this.Configuration;
+
+            ThemeConfig = new HubThemeConfigService(
+                PluginInterface.GetPluginConfigDirectory(),
+                (msg, ex) => Logger.Warning(ex, msg));
+            HubStyle.Init(ThemeConfig);
 
             mainWindow = new MainWindow(this, this.Configuration);
             configWindow = new ConfigWindow(this.Configuration);
@@ -160,6 +170,17 @@ namespace InventoryCleaner
 
         private void ToggleMainUi() => mainWindow.Toggle();
         internal void ToggleConfigUi() => configWindow.Toggle();
-        private void DrawUI() => WindowSystem.Draw();
+        /// <summary>
+        /// One wrap point for the whole plugin: no window class knows the theme
+        /// exists, and the pop is guaranteed even if a window throws mid-draw —
+        /// ImGui's style stack is global, so an unbalanced push corrupts every
+        /// plugin drawing after this one.
+        /// </summary>
+        private void DrawUI()
+        {
+            HubStyle.Push();
+            try { WindowSystem.Draw(); }
+            finally { HubStyle.Pop(); }
+        }
     }
 }

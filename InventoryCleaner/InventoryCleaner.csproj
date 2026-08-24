@@ -23,6 +23,10 @@
 		<Compile Include="..\..\XivHubPluginKit\Inventory\SlotView.cs" Link="Kit\Inventory\SlotView.cs" />
 		<Compile Include="..\..\XivHubPluginKit\Inventory\MoveOp.cs" Link="Kit\Inventory\MoveOp.cs" />
 		<Compile Include="..\..\XivHubPluginKit\Inventory\MoveQueue.cs" Link="Kit\Inventory\MoveQueue.cs" />
+		<Compile Include="..\..\XivHubPluginKit\UI\HubColors.cs" Link="Kit\UI\HubColors.cs" />
+		<Compile Include="..\..\XivHubPluginKit\UI\HubStyle.cs" Link="Kit\UI\HubStyle.cs" />
+		<Compile Include="..\..\XivHubPluginKit\UI\HubThemeConfig.cs" Link="Kit\UI\HubThemeConfig.cs" />
+		<Compile Include="..\..\XivHubPluginKit\UI\HubThemeEditor.cs" Link="Kit\UI\HubThemeEditor.cs" />
 	</ItemGroup>
 
 </Project>

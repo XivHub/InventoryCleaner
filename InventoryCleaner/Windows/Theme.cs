@@ -5,20 +5,19 @@ using Dalamud.Interface;
 using Dalamud.Interface.Textures;
 using Dalamud.Interface.Utility.Raii;
 using InventoryCleaner.Game;
+using XivHubPluginKit.UI;
 
 namespace InventoryCleaner.Windows;
 
 /// <summary>
-/// The plugin's visual vocabulary: six semantic colors and the handful of primitives every window
-/// draws with. Colors are deliberately few — an item is kept, moved, destroyed, pinned by the user,
-/// carries materia, or is worth seals — and the nuance behind each decision lives in its reason text
-/// rather than in more hues.
+/// The plugin's own visual vocabulary: the five category colors that say what will happen to an
+/// item, and the handful of primitives every window draws with. Colors are deliberately few — an
+/// item is kept, moved, destroyed, carries materia, or is worth seals — and the nuance behind each
+/// decision lives in its reason text rather than in more hues. Everything else — surfaces, buttons,
+/// the accent, and the four semantic roles — comes from <see cref="HubStyle"/>.
 /// </summary>
 internal static class Theme
 {
-    /// <summary>Brass — the Armoury Chest's own metal. Structure, headings, user pins.</summary>
-    internal static readonly Vector4 Brass = new(0.851f, 0.741f, 0.420f, 1f);
-
     /// <summary>Gear staying where it is.</summary>
     internal static readonly Vector4 Keep = new(0.435f, 0.749f, 0.451f, 1f);
 
@@ -34,11 +33,6 @@ internal static class Theme
     /// <summary>Materia waiting to be extracted.</summary>
     internal static readonly Vector4 Materia = new(0.722f, 0.537f, 0.910f, 1f);
 
-    internal static readonly Vector4 Panel = new(0.055f, 0.055f, 0.067f, 0.95f);
-    internal static readonly Vector4 Track = new(0.157f, 0.157f, 0.184f, 1f);
-    internal static readonly Vector4 Rule = new(0.227f, 0.227f, 0.267f, 1f);
-    internal static readonly Vector4 Muted = new(0.549f, 0.549f, 0.588f, 1f);
-
     /// <summary>The spacing unit everything is measured in: half a line of text.</summary>
     internal static float Unit => ImGui.GetTextLineHeight() * 0.5f;
 
@@ -48,7 +42,7 @@ internal static class Theme
     /// <summary>A FontAwesome glyph rendered inline at the cursor.</summary>
     internal static void Icon(FontAwesomeIcon icon, Vector4? color = null)
     {
-        using var c = ImRaii.PushColor(ImGuiCol.Text, color ?? Brass, color.HasValue);
+        using var c = ImRaii.PushColor(ImGuiCol.Text, color ?? HubStyle.Accent);
         using var font = Plugin.PluginInterface.UiBuilder.IconFontHandle.Push();
         ImGui.TextUnformatted(icon.ToIconString());
     }
@@ -77,7 +71,7 @@ internal static class Theme
         var dl = ImGui.GetWindowDrawList();
         var min = ImGui.GetItemRectMin();
         var max = ImGui.GetItemRectMax();
-        dl.AddRectFilled(min, max, ImGui.GetColorU32(Track), 2f, ImDrawFlags.None);
+        dl.AddRectFilled(min, max, ImGui.GetColorU32(HubColors.Get("HubFrameBg")), 2f, ImDrawFlags.None);
 
         var width = (max.X - min.X) * Math.Clamp(frac, 0f, 1f);
         if (width > 0f)
@@ -86,18 +80,17 @@ internal static class Theme
 
     /// <summary>
     /// One segment of the mode switcher. The active segment is filled with its own mode color, so
-    /// the destructive mode announces itself before it is entered rather than after.
+    /// the destructive mode announces itself before it is entered rather than after; an inactive
+    /// segment is left on the theme's button surface.
     /// </summary>
     internal static bool Tab(string label, bool active, Vector4 color, float width)
     {
-        var fill = active ? color with { W = 0.85f } : new Vector4(0.157f, 0.157f, 0.184f, 1f);
-        var hover = active ? fill : new Vector4(0.220f, 0.220f, 0.259f, 1f);
-        var text = active ? new Vector4(0.055f, 0.055f, 0.067f, 1f) : Muted;
+        var fill = color with { W = 0.85f };
 
-        using var colors = ImRaii.PushColor(ImGuiCol.Button, fill)
-            .Push(ImGuiCol.ButtonHovered, hover)
-            .Push(ImGuiCol.ButtonActive, fill)
-            .Push(ImGuiCol.Text, text);
+        using var colors = ImRaii.PushColor(ImGuiCol.Button, fill, active)
+            .Push(ImGuiCol.ButtonHovered, fill, active)
+            .Push(ImGuiCol.ButtonActive, fill, active)
+            .Push(ImGuiCol.Text, HubColors.Get("HubGround"), active);
         return ImGui.Button(label, new Vector2(width, 0f));
     }
 
@@ -105,8 +98,8 @@ internal static class Theme
     internal static bool IconButton(FontAwesomeIcon icon, string tooltip)
     {
         using var colors = ImRaii.PushColor(ImGuiCol.Button, new Vector4(0f, 0f, 0f, 0f))
-            .Push(ImGuiCol.ButtonHovered, Brass with { W = 0.25f })
-            .Push(ImGuiCol.ButtonActive, Brass with { W = 0.40f });
+            .Push(ImGuiCol.ButtonHovered, HubStyle.Accent with { W = 0.25f })
+            .Push(ImGuiCol.ButtonActive, HubStyle.Accent with { W = 0.40f });
 
         var size = ImGui.GetFrameHeight();
         var pressed = ImGui.Button($"##{tooltip}", new Vector2(size, size));
@@ -120,7 +113,7 @@ internal static class Theme
             var glyphSize = ImGui.CalcTextSize(glyph);
             ImGui.GetWindowDrawList().AddText(
                 min + ((new Vector2(size, size) - glyphSize) * 0.5f),
-                ImGui.GetColorU32(Muted),
+                ImGui.GetColorU32(HubStyle.Muted),
                 glyph);
         }
 

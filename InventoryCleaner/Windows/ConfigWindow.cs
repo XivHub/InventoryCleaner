@@ -10,6 +10,7 @@ using Dalamud.Interface.Windowing;
 using InventoryCleaner.Game;
 using Lumina.Excel;
 using Lumina.Excel.Sheets;
+using XivHubPluginKit.UI;
 
 namespace InventoryCleaner.Windows
 {
@@ -105,8 +106,23 @@ namespace InventoryCleaner.Windows
 
             ImGui.Spacing();
             ImGui.Separator();
+            DrawAppearance();
+
+            ImGui.Spacing();
+            ImGui.Separator();
             if (ImGuiComponents.IconButtonWithText(FontAwesomeIcon.Save, "Save"))
                 cfg.Save();
+        }
+
+        /// <summary>
+        /// The XIV Hub theme, shared with every other plugin in the family, so a change here
+        /// reaches all of them.
+        /// </summary>
+        private static void DrawAppearance()
+        {
+            ImGui.TextDisabled("Appearance");
+            ImGui.Spacing();
+            HubThemeEditor.Draw(Plugin.ThemeConfig);
         }
 
         private void DrawDiscardSettings()
@@ -200,7 +216,7 @@ namespace InventoryCleaner.Windows
             var abbrev = Sheets.JobAbbrev(job);
             if (abbrev.Length == 0)
                 abbrev = job.ToString();
-            using var color = ImRaii.PushColor(ImGuiCol.Text, new Vector4(0.4f, 0.4f, 0.4f, 1f), !enabled);
+            using var color = ImRaii.PushColor(ImGuiCol.Text, HubStyle.Faint, !enabled);
             return ImGui.Button(abbrev, new Vector2(size, size));
         }
 

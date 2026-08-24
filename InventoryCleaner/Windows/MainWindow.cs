@@ -12,6 +12,7 @@ using InventoryCleaner.Game;
 using InventoryCleaner.Logic;
 using InventoryCleaner.Models;
 using XivHubPluginKit.Inventory;
+using XivHubPluginKit.UI;
 using InventoryItem = InventoryCleaner.Models.InventoryItem;
 
 namespace InventoryCleaner.Windows
@@ -122,7 +123,7 @@ namespace InventoryCleaner.Windows
             ImGui.SameLine();
             ImGui.TextUnformatted("Armoury");
             ImGui.SameLine();
-            ImGui.TextColored(Theme.Muted, "· keep what you use");
+            ImGui.TextColored(HubStyle.Muted, "· keep what you use");
 
             var free = InventoryReader.FreeMainInventorySlots();
             var label = $"{free} bag slots free";
@@ -130,7 +131,7 @@ namespace InventoryCleaner.Windows
             ImGui.SameLine(MathF.Max(
                 ImGui.GetCursorPosX(),
                 ImGui.GetWindowWidth() - width - ImGui.GetStyle().WindowPadding.X));
-            Theme.Chip(label, free > 0 ? Theme.Muted : Theme.Danger);
+            Theme.Chip(label, free > 0 ? HubStyle.Muted : HubStyle.Warn);
 
             ImGui.SameLine();
             if (Theme.IconButton(FontAwesomeIcon.Cog, "Settings"))
@@ -145,7 +146,7 @@ namespace InventoryCleaner.Windows
             var spacing = ImGui.GetStyle().ItemSpacing.X;
             var width = (ImGui.GetContentRegionAvail().X - (spacing * 2f)) / 3f;
 
-            if (Theme.Tab("Clean", CurrentMode == Mode.Clean, Theme.Brass, width))
+            if (Theme.Tab("Clean", CurrentMode == Mode.Clean, HubStyle.Accent, width))
                 SwitchMode(Mode.Clean);
             ImGui.SameLine();
             if (Theme.Tab("Restock", CurrentMode == Mode.Reverse, Theme.Keep, width))
@@ -155,7 +156,7 @@ namespace InventoryCleaner.Windows
                 SwitchMode(Mode.Discard);
 
             Theme.Gap(0.5f);
-            ImGui.TextColored(Theme.Muted, CurrentMode switch
+            ImGui.TextColored(HubStyle.Muted, CurrentMode switch
             {
                 Mode.Clean => "Move gear no gearset needs out of the Armoury Chest and into your bags.",
                 Mode.Reverse => "Pull gear your gearsets reference back out of your bags into the Armoury Chest.",
@@ -178,12 +179,12 @@ namespace InventoryCleaner.Windows
             var blocked = !reverse && free <= 0;
 
             if (blocked)
-                ImGui.TextColored(Theme.Danger, "Your bags are full, so there is nowhere to move gear to.");
+                ImGui.TextColored(HubStyle.Warn, "Your bags are full, so there is nowhere to move gear to.");
 
             DrawArmouryOverview();
             Theme.Gap(0.5f);
 
-            if (Theme.ActionButton(FontAwesomeIcon.Search, reverse ? "Plan restock" : "Plan clean", Theme.Brass, !blocked))
+            if (Theme.ActionButton(FontAwesomeIcon.Search, reverse ? "Plan restock" : "Plan clean", HubStyle.Accent, !blocked))
                 BuildPreview(reverse ? ReversePlanner.Plan(cfg) : CleanPlanner.Plan(cfg), reverse);
         }
 
@@ -202,7 +203,7 @@ namespace InventoryCleaner.Windows
             var size = racks.Sum(r => r.Value.Size);
             var gearsets = GearsetReader.All().Count();
 
-            Theme.Chip($"{used} of {size} armoury slots used", used >= size ? Theme.Danger : Theme.Muted);
+            Theme.Chip($"{used} of {size} armoury slots used", used >= size ? HubStyle.Warn : HubStyle.Muted);
             ImGui.SameLine();
             Theme.Chip($"{gearsets} gearsets", Theme.Keep);
 
@@ -229,14 +230,14 @@ namespace InventoryCleaner.Windows
                 ImGui.TextUnformatted(EquipSlotExtensions.ContainerName(rack.Key));
 
                 ImGui.TableSetColumnIndex(1);
-                ImGui.TextColored(Theme.Muted, $"{rack.Value.Used}/{rack.Value.Size}");
+                ImGui.TextColored(HubStyle.Muted, $"{rack.Value.Used}/{rack.Value.Size}");
 
                 ImGui.TableSetColumnIndex(2);
                 ImGui.SetCursorPosY(ImGui.GetCursorPosY() + (ImGui.GetTextLineHeight() * 0.3f));
                 Theme.FillBar(
                     fill,
                     new Vector2(MathF.Max(24f, ImGui.GetContentRegionAvail().X - Theme.Unit), Theme.Unit * 0.9f),
-                    fill >= 0.9f ? Theme.Danger : Theme.Brass);
+                    fill >= 0.9f ? HubStyle.Warn : HubStyle.Accent);
             }
         }
 
@@ -277,9 +278,9 @@ namespace InventoryCleaner.Windows
                 if (moveCount > free)
                 {
                     ImGui.SameLine();
-                    Theme.Chip($"{moveCount - free} will not fit", Theme.Danger);
+                    Theme.Chip($"{moveCount - free} will not fit", HubStyle.Warn);
                     ImGui.TextColored(
-                        Theme.Muted,
+                        HubStyle.Muted,
                         "The run stops when your bags fill. Fullest racks go first, so the space you get back is where it was tightest.");
                 }
             }
@@ -291,7 +292,7 @@ namespace InventoryCleaner.Windows
             if (Theme.ActionButton(
                     FontAwesomeIcon.Check,
                     plugin.pendingReverse ? "Restock" : "Clean",
-                    Theme.Brass,
+                    HubStyle.Accent,
                     !plugin.MoveQueue.IsRunning))
             {
                 if (!plugin.pendingReverse && InventoryReader.FreeMainInventorySlots() <= 0)
@@ -308,7 +309,7 @@ namespace InventoryCleaner.Windows
             }
 
             ImGui.SameLine();
-            if (Theme.ActionButton(FontAwesomeIcon.Times, "Cancel", Theme.Muted))
+            if (Theme.ActionButton(FontAwesomeIcon.Times, "Cancel", HubStyle.Muted))
             {
                 plugin.PendingPreview = null;
                 state = UiState.Idle;
@@ -322,7 +323,7 @@ namespace InventoryCleaner.Windows
             Theme.FillBar(
                 total > 0 ? (float)mq.Done / total : 0f,
                 new Vector2(ImGui.GetContentRegionAvail().X, Theme.Unit),
-                Theme.Brass);
+                HubStyle.Accent);
 
             Theme.Gap();
             var cur = mq.Current;
@@ -335,10 +336,10 @@ namespace InventoryCleaner.Windows
             }
             else
             {
-                ImGui.TextColored(Theme.Muted, "Finishing up");
+                ImGui.TextColored(HubStyle.Muted, "Finishing up");
             }
 
-            ImGui.TextColored(Theme.Muted, $"{mq.Done} of {total} moved");
+            ImGui.TextColored(HubStyle.Muted, $"{mq.Done} of {total} moved");
 
             Theme.Gap();
             if (Theme.ActionButton(FontAwesomeIcon.Stop, "Stop", Theme.Danger))
@@ -357,11 +358,11 @@ namespace InventoryCleaner.Windows
             if (lastRunFailed > 0)
             {
                 ImGui.SameLine();
-                Theme.Chip($"{lastRunFailed} failed", Theme.Danger);
+                Theme.Chip($"{lastRunFailed} failed", HubStyle.Bad);
             }
 
             Theme.Gap();
-            if (Theme.ActionButton(FontAwesomeIcon.Undo, "Back", Theme.Muted))
+            if (Theme.ActionButton(FontAwesomeIcon.Undo, "Back", HubStyle.Muted))
                 state = UiState.Idle;
 
             if (lastRunMoved > 0)
@@ -426,17 +427,17 @@ namespace InventoryCleaner.Windows
             var fill = usage.Size > 0 ? (float)usage.Used / usage.Size : 0f;
 
             ImGui.TableNextRow();
-            ImGui.TableSetBgColor(ImGuiTableBgTarget.RowBg0, ImGui.GetColorU32(Theme.Brass with { W = 0.10f }));
+            ImGui.TableSetBgColor(ImGuiTableBgTarget.RowBg0, ImGui.GetColorU32(HubStyle.Accent with { W = 0.10f }));
 
             ImGui.TableSetColumnIndex(0);
             Theme.Icon(FontAwesomeIcon.Boxes);
 
             ImGui.TableSetColumnIndex(1);
-            ImGui.TextColored(Theme.Brass, EquipSlotExtensions.ContainerName(container));
+            ImGui.TextColored(HubStyle.Accent, EquipSlotExtensions.ContainerName(container));
 
             ImGui.TableSetColumnIndex(2);
             if (usage.Size > 0)
-                ImGui.TextColored(Theme.Muted, $"{usage.Used}/{usage.Size}");
+                ImGui.TextColored(HubStyle.Muted, $"{usage.Used}/{usage.Size}");
 
             ImGui.TableSetColumnIndex(3);
             if (usage.Size > 0)
@@ -445,7 +446,7 @@ namespace InventoryCleaner.Windows
                 Theme.FillBar(
                     fill,
                     new Vector2(MathF.Max(24f, ImGui.GetContentRegionAvail().X - Theme.Unit), Theme.Unit * 0.8f),
-                    fill >= 0.9f ? Theme.Danger : Theme.Brass);
+                    fill >= 0.9f ? HubStyle.Warn : HubStyle.Accent);
             }
         }
 
@@ -505,7 +506,7 @@ namespace InventoryCleaner.Windows
             var markedSeals = discardCandidates.Count(
                 i => i.CanTradeForSeals && discardSelection.Contains((i.Container, i.SlotIndex)));
 
-            Theme.Chip($"{discardCandidates.Count} eligible", Theme.Muted);
+            Theme.Chip($"{discardCandidates.Count} eligible", HubStyle.Muted);
             if (discardSelection.Count > 0)
             {
                 ImGui.SameLine();
@@ -515,13 +516,13 @@ namespace InventoryCleaner.Windows
             if (discardWithheld.Count > 0)
             {
                 ImGui.SameLine();
-                Theme.Chip($"{discardWithheld.Count} withheld", Theme.Brass);
+                Theme.Chip($"{discardWithheld.Count} withheld", HubStyle.Accent);
                 if (ImGui.IsItemHovered())
                     DrawWithheldTooltip();
             }
 
             ImGui.SameLine();
-            if (Theme.ActionButton(FontAwesomeIcon.SyncAlt, "Rescan", Theme.Muted))
+            if (Theme.ActionButton(FontAwesomeIcon.SyncAlt, "Rescan", HubStyle.Muted))
                 RefreshDiscardCandidates();
 
             var sealWorthy = discardCandidates.Count(i => i.CanTradeForSeals);
@@ -534,7 +535,7 @@ namespace InventoryCleaner.Windows
             }
 
             ImGui.TextColored(
-                Theme.Muted,
+                HubStyle.Muted,
                 "Equipped gear, anything a gearset uses, and your allowlist are never listed here.");
 
             Theme.Gap();
@@ -603,7 +604,7 @@ namespace InventoryCleaner.Windows
             if (Theme.ActionButton(FontAwesomeIcon.TrashAlt, "Destroy them", Theme.Danger))
                 StartDiscard();
             ImGui.SameLine();
-            if (Theme.ActionButton(FontAwesomeIcon.Times, "Keep them", Theme.Muted))
+            if (Theme.ActionButton(FontAwesomeIcon.Times, "Keep them", HubStyle.Muted))
                 discardArmed = false;
         }
 
@@ -615,7 +616,7 @@ namespace InventoryCleaner.Windows
         {
             const int limit = 12;
             using var tooltip = ImRaii.Tooltip();
-            ImGui.TextColored(Theme.Brass, "Held back as unrecoverable");
+            ImGui.TextColored(HubStyle.Accent, "Held back as unrecoverable");
             ImGui.Separator();
 
             for (var i = 0; i < discardWithheld.Count && i < limit; i++)
@@ -624,11 +625,11 @@ namespace InventoryCleaner.Windows
                 using (ImRaii.PushColor(ImGuiCol.Text, Sheets.RarityColorU32(withheld.Item.ItemId)))
                     ImGui.TextUnformatted(ItemLabel(withheld.Item));
                 ImGui.SameLine();
-                ImGui.TextColored(Theme.Muted, $"· {withheld.Reason}");
+                ImGui.TextColored(HubStyle.Muted, $"· {withheld.Reason}");
             }
 
             if (discardWithheld.Count > limit)
-                ImGui.TextColored(Theme.Muted, $"and {discardWithheld.Count - limit} more");
+                ImGui.TextColored(HubStyle.Muted, $"and {discardWithheld.Count - limit} more");
         }
 
         /// <summary>
@@ -683,10 +684,10 @@ namespace InventoryCleaner.Windows
             }
             else
             {
-                ImGui.TextColored(Theme.Muted, "Finishing up");
+                ImGui.TextColored(HubStyle.Muted, "Finishing up");
             }
 
-            ImGui.TextColored(Theme.Muted, $"{handled} of {total} handled");
+            ImGui.TextColored(HubStyle.Muted, $"{handled} of {total} handled");
 
             Theme.Gap();
             if (Theme.ActionButton(FontAwesomeIcon.Stop, "Stop", Theme.Danger))
@@ -700,17 +701,17 @@ namespace InventoryCleaner.Windows
             if (summary.Failed > 0)
             {
                 ImGui.SameLine();
-                Theme.Chip($"{summary.Failed} failed", Theme.Move);
+                Theme.Chip($"{summary.Failed} failed", HubStyle.Bad);
             }
 
             if (summary.Skipped > 0)
             {
                 ImGui.SameLine();
-                Theme.Chip($"{summary.Skipped} skipped", Theme.Muted);
+                Theme.Chip($"{summary.Skipped} skipped", HubStyle.Muted);
             }
 
             Theme.Gap();
-            if (Theme.ActionButton(FontAwesomeIcon.Undo, "Back", Theme.Muted))
+            if (Theme.ActionButton(FontAwesomeIcon.Undo, "Back", HubStyle.Muted))
                 RefreshDiscardCandidates();
         }
 
@@ -719,7 +720,7 @@ namespace InventoryCleaner.Windows
 
         private static Vector4 ReasonColor(DecisionReason r) => r switch
         {
-            DecisionReason.Kept_Allowlist => Theme.Brass,
+            DecisionReason.Kept_Allowlist => HubStyle.Accent,
             DecisionReason.Kept_Equipped => Theme.Keep,
             DecisionReason.Kept_GearsetRef => Theme.Keep,
             DecisionReason.Kept_Upgrade => Theme.Keep,
